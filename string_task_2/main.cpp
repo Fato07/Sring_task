@@ -4,95 +4,91 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <fstream>
+#include <sstream>
 
-#pragma warning(disable : 4996)
+namespace
+{
+	int const Min_Word_Length = 4;
+}
 
-#define MAXLEN 100
-
-char* substring(char* string, int position, int length);
-void processFile(FILE* fi);
-void iterate_word_container(std::vector<std::string> const&);
-
+//char* substring(char* string, int position, int length);
+void processFile(std::ifstream& file);
+void fill_words_container(std::string const& token, std::vector<std::string>& words);
+void iterate_words_container(std::vector<std::string> const&);
 
 int main(void)
 {
-	char wordData[] = "inputFile.txt";
-	char* sub_string;
-	int position = 1;
-	int length = 3;
-	int len_of_word;
-	int temp;
-
-	FILE* fi = fopen(wordData, "r");
-	if (fi == NULL)
+	std::string wordData = "inputFile.txt";
+	std::ifstream fileHandler{ wordData };
+	
+	if (!fileHandler)
 	{
-		perror("Error");
-		exit(EXIT_FAILURE);
+		std::cout << "File is corrupted\n";
+		return -1;
 	}
 
-	processFile(fi);
+	processFile(fileHandler);
 
 	return 0;
 }
 
-void processFile(FILE* fi)
+void processFile(std::ifstream& file)
 {
-	int i, j, count;
-	char word[MAXLEN];
-	char sorted_words[MAXLEN][MAXLEN];
-
-	int const min_word_length = 4;
-	int k = 0;
-
 	std::vector<std::string> words;
-	while (fscanf(fi, " %[^\n]s", word) != EOF)
+	std::string line;
+	std::string delimiter = " ";
+	std::string token;
+	while (std::getline(file, line, '\n'))
 	{
-		j = 0;
-		count = 0;
-
-		char string_container[256];
-		strcpy(string_container, word);
-
-		char* ptr = strtok(string_container, " ");
-		while (ptr)
+		size_t pos = 0;
+		while ((pos = line.find(delimiter)) != std::string::npos) 
 		{
-			if (strlen(ptr) >= min_word_length)
-			{
-				strcpy(sorted_words[k], ptr);
-				words.push_back(ptr);
-				++k;
-			}
-			ptr = strtok(NULL, " ");
+			token = line.substr(0, pos);
+			line.erase(0, pos + delimiter.length());
+			fill_words_container(token, words);
+		}
+		if (line.length() != 0)
+		{
+			fill_words_container(line, words);
 		}
 	}
-	iterate_word_container(words);
+	iterate_words_container(words);
 }
 
-void iterate_word_container(std::vector<std::string> const& words)
+void fill_words_container(std::string const& token, std::vector<std::string>& words)
 {
-
+	if (token.length() >= Min_Word_Length)
+	{
+		words.push_back(token);
+	}
 }
 
-char* substring(char* string, int position, int length)
+void iterate_words_container(std::vector<std::string> const& words)
 {
-	char* pointer;
-	int i;
-
-	pointer = (char*)malloc(length + 1);
-	if (pointer == NULL)
-	{
-		printf("Unable to allocate memory\n");
-		exit(1);
-	}
-
-	for (i = 0; i < length; i++)
-	{
-		*(pointer + i) = *(string + position - 1);
-		string++;
-	}
-
-	*(pointer + i) = '\0';
-
-	return pointer;
+	
 }
+//
+//char* substring(char* string, int position, int length)
+//{
+//	char* pointer;
+//	int i;
+//
+//	pointer = (char*)malloc(length + 1);
+//	if (pointer == NULL)
+//	{
+//		printf("Unable to allocate memory\n");
+//		exit(1);
+//	}
+//
+//	for (i = 0; i < length; i++)
+//	{
+//		*(pointer + i) = *(string + position - 1);
+//		string++;
+//	}
+//
+//	*(pointer + i) = '\0';
+//
+//	return pointer;
+//}
 
