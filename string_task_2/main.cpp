@@ -6,6 +6,7 @@
 #include <string>
 #include <fstream>
 #include <sstream>
+#include <map>
 
 namespace
 {
@@ -14,6 +15,7 @@ namespace
 
 //char* substring(char* string, int position, int length);
 void processFile(std::ifstream& file);
+void result_print(std::map<std::string, int> const& map);
 void fill_words_container(std::string const& token, std::vector<std::string>& words);
 void iterate_words_container(std::vector<std::string> const&);
 
@@ -66,7 +68,34 @@ void fill_words_container(std::string const& token, std::vector<std::string>& wo
 
 void iterate_words_container(std::vector<std::string> const& words)
 {
-	
+	size_t sub_str_len = 4;
+	size_t pos = 0;
+	std::map<std::string, int> sorted_words;
+
+	for (auto word = words.begin(); word != words.end(); ++word)
+	{
+		for (int i = 0; i < word->length(); ++i)
+		{
+			if (i + sub_str_len < word->length())
+			{
+				auto substr = word->substr(i, i + sub_str_len);
+				if (word->find(substr) != std::string::npos)
+				{
+					sorted_words[substr]++;
+				}
+			}
+		}
+		sorted_words[*word]++;
+	}
+	result_print(sorted_words);
+}
+
+void result_print(std::map<std::string, int> const& map)
+{
+	for (auto p = map.begin(); p != map.end(); ++p)
+	{
+		std::cout << p->first << " = " << p->second << " times.\n";
+	}
 }
 //
 //char* substring(char* string, int position, int length)
